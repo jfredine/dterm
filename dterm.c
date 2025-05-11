@@ -114,6 +114,7 @@ static int backspace = 0;    /* Backspace char, send on BS or DEL 	*/
 static int maplf = 0;        /* If set, map LF to CR 		*/
 static int ignorecr = 0;     /* Ignore carriage returns		*/
 static int crlf = 0;         /* Send CRLF on CR			*/
+static int echo = 0;         /* Echo keyboard input			*/
 static int istty;            /* Result of isatty()			*/
 static char *connname = 0;   /* Connection name found in config	*/
 static int sendbreak = 0;    /* Break requested			*/
@@ -163,6 +164,7 @@ static void help() {
         "maplf, nomaplf	Enable / disable mapping of LF to CR\n"
         "igncr, noigncr	Ignore / output carriage returns\n"
         "crlf, nocrlf	Enable / disable sending LF after each CR\n"
+        "echo, nonoecho	Enable / disable local echo of keyboard input\n"
         "delay=<n>	Add delay of <n> ms after each charachter sent\n"
         "crwait=<n>	Add delay of <n> ms after each line sent\n"
         "esc=<c> 	Set command mode character to Ctrl/<c>\n"
@@ -261,6 +263,7 @@ static void showsetup() {
     if (maplf) fprintf(stderr, " maplf");
     if (ignorecr) fprintf(stderr, " igncr");
     if (crlf) fprintf(stderr, " crlf");
+    if (echo ) fprintf(stderr, " echo");
     if (showspecial == 1) fprintf(stderr, " ctrl");
     if (showspecial == 2) fprintf(stderr, " hex");
     putc('\n', stderr);
@@ -526,6 +529,10 @@ static int setup(char *s, char *cffile, int cfline) {
                 crlf = 1;
             else if (!strcasecmp(s, "nocrlf"))
                 crlf = 0;
+            else if (!strcasecmp(s, "echo"))
+                echo = 1;
+            else if (!strcasecmp(s, "noecho"))
+                echo = 0;
             else if (!strcasecmp(s, "noshell"))
                 noshell = 1;
             else if (!strcasecmp(s, "b"))
@@ -1025,9 +1032,11 @@ int main(int argc, char **argv) {
                 if (backspace && (inbuf == 8 || inbuf == 127))
                     inbuf = backspace;
                 if (maplf && inbuf == '\n') inbuf = '\r';
+                if (echo) WRITE(1, &inbuf, 1);
                 WRITE(fd, &inbuf, 1);
                 if (crlf && inbuf == '\r') {
                     inbuf = '\n';
+                    if (echo) WRITE(1, &inbuf, 1);
                     WRITE(fd, &inbuf, 1);
                 }
                 if (linedelay && inbuf == '\r')

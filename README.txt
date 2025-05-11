@@ -47,6 +47,7 @@ exit if modem hangs up), default nomodem.
 - maplf, nomaplf: Enable / disable mapping of LF to CR, default nomaplf.
 - igncr, noigncr: Ignore / output carriage returns, default noigncr.
 - crlf, nocrlf: Enable / disable sending LF after each CR, default nocrlf.
+- echo, noecho: Enable / disable local echo of keyboard input
 - ctrl, noctrl: Enable / disable control character display mode.  In this
 mode, non-printable characters are displayed as ^c for the codes 0-31 (except
 CR, LF & TAB), [DEL] for 127, or [xx] for non-printing characters >= 128.
